@@ -320,7 +320,12 @@ export default function Home() {
       jual_tinggi: (a, b) => (b.harga_jual ?? -1) - (a.harga_jual ?? -1),
       nama: (a, b) => a.nama.localeCompare(b.nama, 'id'),
     };
-    return out.sort(sorters[filter.sort] || sorters.terbaru);
+    out.sort(
+      (a, b) =>
+        (a.status === b.status ? 0 : a.status === 'terjual' ? -1 : 1) ||
+        (a.status === 'terjual' ? byDate(a, b, 'tgl_jual') : byDate(a, b, 'tgl_beli')),
+    );
+    return out;
   }, [rows, filter]);
 
   const stats = useMemo(() => {
@@ -333,7 +338,7 @@ export default function Home() {
       total: filtered.length,
       stokN: stok.length,
       stokModal,
-      modalSold,
+      totalModal: stokModal + modalSold,
       soldN: sold.length,
       omzet,
       profit: omzet - modalSold,
@@ -417,20 +422,23 @@ export default function Home() {
         {loadErr && <div className="alert">{loadErr}</div>}
 
         <section className="stats">
-          <div className="stat">
-            <span>Terjual</span>
-            <b>{stats.soldN} ekor</b>
-            <small>Omzet {rp(stats.omzet)}</small>
-          </div>
           <div className="stat cost">
-            <span>Total modal (yang terjual)</span>
-            <b>{rp(stats.modalSold)}</b>
-            <small>Harga beli dari {stats.soldN} ekor terjual</small>
+            <span>Total modal</span>
+            <b>{rp(stats.totalModal)}</b>
+            <small>Semua {stats.total} ekor ({stats.soldN} terjual, {stats.stokN} stok)</small>
           </div>
-          <div className={'stat ' + (stats.profit >= 0 ? 'pos' : 'neg')}>
-            <span>Profit</span>
-            <b>{stats.profit >= 0 ? '' : '-'}{rp(Math.abs(stats.profit))}</b>
-            <small>Margin {stats.margin.toFixed(1)}%</small>
+          <div className="stat">
+            <span>Total terjual (kotor)</span>
+            <b>{rp(stats.omzet)}</b>
+            <small>Dari {stats.soldN} ekor yang sudah terjual</small>
+          </div>
+          <div className={'stat ' + (stats.omzet - stats.totalModal >= 0 ? 'pos' : 'neg')}>
+            <span>Pendapatan bersih</span>
+            <b>
+              {stats.omzet - stats.totalModal >= 0 ? '' : '-'}
+              {rp(Math.abs(stats.omzet - stats.totalModal))}
+            </b>
+            <small>Terjual kotor − total modal</small>
           </div>
         </section>
         {hasFilter && <p className="muted note">Ringkasan di atas mengikuti hasil pencarian.</p>}
