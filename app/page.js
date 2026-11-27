@@ -333,7 +333,7 @@ export default function Home() {
       total: filtered.length,
       stokN: stok.length,
       stokModal,
-      totalModal: stokModal + modalSold,
+      modalSold,
       soldN: sold.length,
       omzet,
       profit: omzet - modalSold,
@@ -418,22 +418,17 @@ export default function Home() {
 
         <section className="stats">
           <div className="stat">
-            <span>Di stok</span>
-            <b>{stats.stokN} ekor</b>
-            <small>Modal tertahan {rp(stats.stokModal)}</small>
-          </div>
-          <div className="stat">
             <span>Terjual</span>
             <b>{stats.soldN} ekor</b>
             <small>Omzet {rp(stats.omzet)}</small>
           </div>
           <div className="stat cost">
-            <span>Total modal</span>
-            <b>{rp(stats.totalModal)}</b>
-            <small>{stats.total} ekor (stok + terjual)</small>
+            <span>Total modal (yang terjual)</span>
+            <b>{rp(stats.modalSold)}</b>
+            <small>Harga beli dari {stats.soldN} ekor terjual</small>
           </div>
           <div className={'stat ' + (stats.profit >= 0 ? 'pos' : 'neg')}>
-            <span>Profit (dari yang terjual)</span>
+            <span>Profit</span>
             <b>{stats.profit >= 0 ? '' : '-'}{rp(Math.abs(stats.profit))}</b>
             <small>Margin {stats.margin.toFixed(1)}%</small>
           </div>
